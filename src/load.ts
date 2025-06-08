@@ -1,7 +1,25 @@
-import fs, { readFileSync } from 'fs';
-import { Direction, StartState, Command, Rover } from './types';
+import { readFileSync } from 'fs';
+import { RoverDir, RoverState, Command, Rover, Grid, Instructions } from './types';
 
-const processStartLine = (line: string): StartState => {
+const MAX_GRID_HEIGHT = 50;
+const MAX_GRID_WIDTH = 50;
+
+const processGrid = (line: string): Grid => {
+  if (!line || !/^\d+\s+\d+$/.test(line)) {
+    throw new Error('Invalid grid size.');
+  }
+  const [width, height] = line.split(/\s/).map((c) => +c);
+  if (width > MAX_GRID_WIDTH || height > MAX_GRID_HEIGHT) {
+    throw new Error('Invalid grid parameters');
+  }
+
+  return {
+    width,
+    height
+  };
+};
+
+const processStartLine = (line: string): RoverState => {
   if (!/^\d+\s+\d+\s+(N|S|E|W)$/.test(line)) {
     throw new Error(`Invalid rover start line: ${line}`);
   }
@@ -12,7 +30,8 @@ const processStartLine = (line: string): StartState => {
     y: +cols[1],
     // I generally strongly discourage the use of `as` in Typescript, but in this
     // case it's safe due to the previous `if` condition's Regex
-    dir: cols[2] as Direction
+    dir: cols[2] as RoverDir,
+    isLost: false,
   }
 }
 
@@ -24,15 +43,11 @@ const processCommandsLine = (line: string): Command[] => {
   return line.split('') as Command[];
 }
 
-export const loadFile = (filePath: string): Rover[] => {
+export const loadFile = (filePath: string): Instructions => {
 
   const data = readFileSync(filePath, 'utf-8');
   const lines = data.split(/\r\n|\n/).filter((l) => !!l);
-  const grid = lines.shift();
-
-  if (!grid || !/^\d+\s+\d+$/.test(grid)) {
-    throw new Error('Invalid grid size.');
-  }
+  const grid = processGrid(lines.shift() ?? '');
 
   const rovers = lines.reduce((accum: Rover[], line, index) => {
     if (index % 2 === 0) {
@@ -49,5 +64,8 @@ export const loadFile = (filePath: string): Rover[] => {
     return accum;
   }, []);
 
-  return rovers;
+  return {
+    grid,
+    rovers
+  };
 }

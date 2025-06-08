@@ -1,0 +1,27 @@
+{
+  "name": "mars-rover-challenge",
+  "version": "1.0.0",
+  "description": "Submission toward job application at Red Badger",
+  "homepage": "https://github.com/PierreVH2/mars-rover-challenge#readme",
+  "bugs": {
+    "url": "https://github.com/PierreVH2/mars-rover-challenge/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PierreVH2/mars-rover-challenge.git"
+  },
+  "license": "ISC",
+  "author": "Pierre van Heerden",
+  "type": "commonjs",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "tsc && node build/index.js",
+    "test": "mocha"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.30",
+    "chai": "^5.2.0",
+    "mocha": "^11.5.0",
+    "typescript": "^5.8.3"
+  }
+}

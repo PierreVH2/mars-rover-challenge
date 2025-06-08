@@ -1,17 +1,12 @@
 import { readFileSync } from 'fs';
 import { RoverDir, RoverState, Command, Rover, Grid, Instructions } from './types';
 
-const MAX_GRID_HEIGHT = 50;
-const MAX_GRID_WIDTH = 50;
 
 const processGrid = (line: string): Grid => {
   if (!line || !/^\d+\s+\d+$/.test(line)) {
     throw new Error('Invalid grid size.');
   }
   const [width, height] = line.split(/\s/).map((c) => +c);
-  if (width > MAX_GRID_WIDTH || height > MAX_GRID_HEIGHT) {
-    throw new Error('Invalid grid parameters');
-  }
 
   return {
     width,

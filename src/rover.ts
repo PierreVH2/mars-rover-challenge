@@ -1,4 +1,4 @@
-import { RoverDir, directions, RoverState, Rover, Coordinate } from "./types";
+import { RoverDir, directions, RoverState, Rover, IsLostFn } from "./types";
 
 const rotateL = (dir: RoverDir): RoverDir => {
   const newDirIdx = directions.indexOf(dir) - 1;
@@ -38,7 +38,7 @@ const moveForward = (rover: RoverState): RoverState => {
   return newRover;
 };
 
-export const runRover = (rover: Rover, isLost: (coord: Coordinate) => boolean, previousRovers: RoverState[]): RoverState => {
+export const runRover = (rover: Rover, isLost: IsLostFn, previousRovers: RoverState[]): RoverState => {
   return rover.commands.reduce((accum: RoverState, next) => {
     if (accum.isLost) {
       return accum;

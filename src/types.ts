@@ -28,3 +28,5 @@ export interface Instructions {
   grid: Grid;
   rovers: Rover[];
 }
+
+export type IsLostFn = (coord: Coordinate) => boolean;

@@ -59,3 +59,32 @@ It would have been interesting if the instructions had additionally indicated no
 #### Type Definitions
 
 The reader will note that I have created a single `types.ts` file - while this is a common practice in Typescript, I do not subscribe to this school of thought mostly because types files like this tend to snowball and become unmanageable. I tend to prefer keeping the type definitions in the files where they are primarily used. This is, however, a relatively simple challenge without much risk of this file ballooning.
+
+#### Type Assertions
+
+I committed a cardinal sin in the `load.ts` file, largely to open a conversation around the use of the `as` keyword in Typescript. It is very rare that I would agree to the use of `as`, because it imposes assumptions regarding the structure of whatever is being handled without any checks whatsoever. The highlighted lines are examples of where it is strictly speaking not unsafe, due to the RegEx tests. That said, a better way would have been to implement type checks, for example:
+
+```typescript
+const isCommand = (cmd: string): cmd is Command => !!['L','R','F'].includes(cmd);
+const isCommandArray = (cmds: string[]): cmds is Command[] => cmds.every((c) => isCommand(c));
+const processCommandsLine = (line: string): Command[] => {
+  const cols = line.split('');
+  if (!isCommandArray(cols)) {
+    throw new Error(`Invalid rover commands line: ${line}`);
+  }
+  return cols;
+}
+```
+
+#### Unit Tests
+
+I implemented unit tests for the `rover.ts` and `mars.ts` files. I did not write unit tests for the main `index.ts` file because it merely orchestrates the execution of the logic that's implemented in `rover.ts` and `mars.ts`. Similarly I did not write tests for the loader, as it only performs basic input validation.
+
+The unit tests I wrote are by no means exhaustive, and conversely in some cases they may seem a bit redundant in some cases. Here are some key points regarding what I deem to be ideal unit tests:
+
+1. Static code analysis can show you which code paths aren't properly covered by the unit tests, but that's just part of a bigger picture. The full parameter space of all input parameters must be probed. An example is where an `if` block is executed if one of two (or more) conditions are met - both conditions need to be tested individually.
+1. Unit tests are best written in isolation of the implementation. Sometimes it's useful to ask another developer to implement a battery of unit tests for you because as developers we can sometimes get bogged down with our preconceptions of how the code should function.
+1. They should be structured such that the pre-conditions that comprise the input parameter space are nested (hierarchically) with the least significant pre-conditions in the outermost layer. A good indicator for this is that each of the variables or input parameters should be set only once. Taking a look at `rover.spec.ts`, the reader will note that there are 2 instances where the same variable is set more than once. The unit tests can be restructured to avoid this, although this would lead to a lot of duplication of code, so I decided to break the rule in this instance.
+1. Only a single unit of code should be tested at a time, be it a file, class or module. Anything that gets imported into the unit must be properly stubbed.
+1. Unit tests should not be impacted by outside factors and should not depend on random data. All data that gets pulled into the unit must again be properly stubbed.
+1. Last, but certainly least, the unit test results should read like a story. In theory, a non-technical person (eg. a business analyst) should be able to read the unit test output and verify that all the business rules have been adequately implemented.
